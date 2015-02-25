@@ -486,13 +486,18 @@ int main(int argc, char *argv[])
       * as inertial parameters (masses, centers of mass, inertia tensor elements) or
       * other related parameters (for example force/torque sensor offset).
       */
-    KDL::CoDyCo::Regressors::DynamicRegressorGenerator ft_regressor_generator(icub_kdl_tree,
+//     KDL::CoDyCo::Regressors::DynamicRegressorGenerator ft_regressor_generator(icub_kdl_tree,
+//                                                                               sensors_tree,
+//                                                                               root_link_name,
+//                                                                               consider_ft_offset,
+//                                                                               fake_names,
+//                                                                               verbose);
+    KDL::CoDyCo::Regressors::DynamicRegressorGenerator ft_regressor_generator(icub_kdl_undirected_tree,
                                                                               sensors_tree,
                                                                               root_link_name,
                                                                               consider_ft_offset,
                                                                               fake_names,
                                                                               verbose);
-
     // Change the base link to left or right arm
     ft_regressor_generator.changeDynamicBase(subtree_dynamic_base);
     ft_regressor_generator.changeKinematicBase(root_link_name);
