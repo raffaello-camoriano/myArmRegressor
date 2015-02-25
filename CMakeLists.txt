@@ -19,6 +19,7 @@ SET(folder_source main.cpp multitaskRecursiveLinearEstimator.cpp multitaskSVDLin
 SOURCE_GROUP("Source Files" FILES ${folder_source})
 
 message(STATUS "iDynTree_INCLUDE_DIRS is ${iDynTree_INCLUDE_DIRS}")
+message(STATUS "iDynTree_LIBRARIES is ${iDynTree_LIBRARIES}")
 
 INCLUDE_DIRECTORIES(${iDynTree_INCLUDE_DIRS}
                     ${YARP_INCLUDE_DIRS}

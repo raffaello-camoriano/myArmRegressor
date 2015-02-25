@@ -8,6 +8,7 @@
 *   iCub arm FT sensor measurement.
 *
 * \author Silvio Traversaro
+* \author Raffaello Camoriano
 *
 * CopyPolicy: Released under the terms of GPL 2.0 or later
 */
@@ -381,6 +382,7 @@ int main(int argc, char *argv[])
     
     // Get Root link of the overall robot
     std::string root_link_name = "root_link";
+
     
     /////// Define the names of the ft sensors
     //Can be l_arm_ft_sensor or r_arm_ft_sensor 
@@ -462,21 +464,21 @@ int main(int argc, char *argv[])
     
     // Get KDL CoDyCo UndirectedTree
     KDL::CoDyCo::UndirectedTree icub_kdl_undirected_tree(icub_kdl_tree,icub_serialization);
-        
-    // Set measure direction
-    std::vector<bool> is_measure_direction_child_to_parent(ft_names.size(),true);
-    SensorsTree sensors_tree = generateSensorsTree(icub_kdl_undirected_tree,ft_names,is_measure_direction_child_to_parent);
 
+    // Set dynamic base name
+    // Can be l_upper_arm or r_upper_arm
+    string subtree_dynamic_base = "l_upper_arm";
     
-    // Get KDL CoDyCo FTSensorList
-//     KDL::CoDyCo::FTSensorList icub_ft_list(icub_kdl_undirected_tree, ft_names, is_measure_direction_child_to_parent);
-//     cout <<"icub_ft_list information : " << icub_ft_list.toString() << endl;
+    // Compute dynamic_traversal
+    Traversal dynamic_traversal;
+    icub_kdl_undirected_tree.compute_traversal(dynamic_traversal,subtree_dynamic_base);
+
+    // Set measure direction
+    std::vector<bool> is_measure_direction_child_to_parent(ft_names.size(),false);
+    SensorsTree sensors_tree = generateSensorsTree(icub_kdl_undirected_tree,ft_names,is_measure_direction_child_to_parent);
      
     // Set consider_ft_offset
     bool consider_ft_offset = true;
-    
-    // Set verbose_output
-    bool verbose_output = true;
     
     /**
       * The dynamics regressor generator is a class for calculating arbitrary regressor
@@ -489,15 +491,11 @@ int main(int argc, char *argv[])
                                                                               root_link_name,
                                                                               consider_ft_offset,
                                                                               fake_names,
-//                                                                               icub_serialization,
-                                                                              verbose_output);
-
-    // Set dynamic base name
-    // Can be l_upper_arm or r_upper_arm
-//     string subtree_dynamic_base = "l_upper_arm";
+                                                                              verbose);
 
     // Change the base link to left or right arm
-//     ft_regressor_generator.changeDynamicBase(subtree_dynamic_base);
+    ft_regressor_generator.changeDynamicBase(subtree_dynamic_base);
+    ft_regressor_generator.changeKinematicBase(root_link_name);
 
     /////// Define the subtree we are interested into
     
@@ -548,7 +546,6 @@ int main(int argc, char *argv[])
     // Create known terms vector
     Eigen::VectorXd ft_kt(ft_regressor_generator.getNrOfOutputs());
     cout <<"rows of ft_kt :" << ft_kt.rows()<<" cols of ft_kt :" << ft_kt.cols()<<endl;
-
     
     //Computing the identifiable subspace basis matrix
     Eigen::MatrixXd base_parameters_subspace; 
@@ -611,10 +608,13 @@ int main(int argc, char *argv[])
     SetToZero(zero_q);
         
     //Compute the regressors
-    ft_regressor_generator.setRobotState(zero_q,zero_q,zero_q,gravity);
+    int rt = ft_regressor_generator.setRobotState(zero_q,zero_q,zero_q,gravity);
+    cout << "rt: " << rt << endl;
     KDL::Wrench ft_sample_zero;
-    ft_regressor_generator.setFTSensorMeasurement(ft_regressor_generator_sensor_index,ft_sample_zero);
-    ft_regressor_generator.computeRegressor(ft_regressor,ft_kt);
+    rt = ft_regressor_generator.setFTSensorMeasurement(ft_regressor_generator_sensor_index,ft_sample_zero);
+    cout << "rt: " << rt << endl;
+    rt = ft_regressor_generator.computeRegressor(ft_regressor,ft_kt);
+    cout << "rt: " << rt << endl;
     Eigen::Matrix<double,6,1> ft_cad_prediction =  ft_regressor * cad_parameters;
 
     cout << "ft_sample_zero: \nForce = " << endl << ft_sample_zero.force(0) << ft_sample_zero.force(1) << ft_sample_zero.force(2) << endl << "Torque = " << endl << ft_sample_zero.torque(0) << ft_sample_zero.torque(1) << ft_sample_zero.torque(2) << endl;
@@ -645,9 +645,12 @@ int main(int argc, char *argv[])
     q_t2(0+6) = PI/2;
     
     //Compute the regressors
-    ft_regressor_generator.setRobotState(q_t2,zero_q,zero_q,gravity);
-    ft_regressor_generator.setFTSensorMeasurement(ft_regressor_generator_sensor_index,ft_sample_zero);
-    ft_regressor_generator.computeRegressor(ft_regressor,ft_kt);
+    rt= ft_regressor_generator.setRobotState(q_t2,zero_q,zero_q,gravity);
+    cout << "rt: " << rt << endl;
+    rt= ft_regressor_generator.setFTSensorMeasurement(ft_regressor_generator_sensor_index,ft_sample_zero);
+    cout << "rt: " << rt << endl;
+    rt= ft_regressor_generator.computeRegressor(ft_regressor,ft_kt);
+    cout << "rt: " << rt << endl;
     ft_cad_prediction =  ft_regressor * cad_parameters;
 
     cout << "ft_sample_zero: \nForce = " << endl << ft_sample_zero.force(0) << ft_sample_zero.force(1) << ft_sample_zero.force(2) << endl << "Torque = " << endl << ft_sample_zero.torque(0) << ft_sample_zero.torque(1) << ft_sample_zero.torque(2) << endl;
@@ -796,7 +799,7 @@ int main(int argc, char *argv[])
     cout << "------------------------------------------------------------------" <<endl;
 
     
-    int c;
+//     int c;
 //     cin >> c;
     
     
