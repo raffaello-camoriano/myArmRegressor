@@ -3,8 +3,8 @@ close all;
 
 %% Load ground truth
 % datasetFileName = 'part1-left.csv';
-% datasetFileName = 'part1.csv';
-datasetFileName = 'part2.csv';
+datasetFileName = 'part1.csv';
+% datasetFileName = 'part2.csv';
 dataset = importdata(datasetFileName, ',', 3);
 % datasetFileName = 'icubdyn.dat';
 % dataset = dlmread(datasetFileName , ',');

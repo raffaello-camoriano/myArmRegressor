@@ -595,6 +595,7 @@ int main(int argc, char *argv[])
     int nmbr_of_samples_for_offset_calibration = 30;
     int nmbr_of_samples_for_offset_calibration_obtained = 0;
     Eigen::VectorXd offset = Eigen::VectorXd(6);
+    offset.setZero();
     Eigen::MatrixXd regressor_offset;
     Eigen::VectorXd offset_kt;
     
@@ -914,26 +915,20 @@ int main(int argc, char *argv[])
             cout << "------------------------------------------------------------------" <<endl;
         }
         
-        
-        
         //Compute offset for CAD parameters
         if( nmbr_of_samples_for_offset_calibration_obtained < nmbr_of_samples_for_offset_calibration ) {
             regressor_offset = ft_regressor.rightCols<6>();     
             offset_kt = ft_kt - ft_regressor * cad_parameters;
-            
-            estimator_static_offset.feedSample(regressor_offset,offset_kt);
+            estimator_static_offset.feedSampleAndUpdate(regressor_offset,offset_kt);
             ++nmbr_of_samples_for_offset_calibration_obtained;
             
             if( nmbr_of_samples_for_offset_calibration_obtained == nmbr_of_samples_for_offset_calibration ) {
-                estimator_static_offset.updateParameterEstimate();
                 offset = estimator_static_offset.getParameterEstimate();
-                offset.setZero();
+//                 offset.setZero();
                 assert(offset.size() == 6);
                 cad_parameters.tail<6>() = offset;
             }
         }
-        
-        
         
         // Predict output given the current estimate
         Eigen::Matrix<double,6,1> ft_estimated_prediction =  ft_regressor * base_parameters_subspace * estimator_dynamic.getParameterEstimate();
