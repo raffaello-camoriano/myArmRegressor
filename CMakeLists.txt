@@ -14,7 +14,8 @@ FIND_PACKAGE(iDynTree REQUIRED)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${YARP_MODULE_PATH})
 
-SET(folder_source main.cpp multitaskRecursiveLinearEstimator.cpp multitaskSVDLinearEstimator.cpp)
+# SET(folder_source main.cpp multitaskRecursiveLinearEstimator.cpp multitaskSVDLinearEstimator.cpp)
+SET(folder_source main_icubdyn.cpp multitaskRecursiveLinearEstimator.cpp multitaskSVDLinearEstimator.cpp)
 
 SOURCE_GROUP("Source Files" FILES ${folder_source})
 
@@ -27,14 +28,11 @@ INCLUDE_DIRECTORIES(${iDynTree_INCLUDE_DIRS}
                     )
 
 
-ADD_EXECUTABLE(${PROJECTNAME} ${folder_source})
+# ADD_EXECUTABLE(${PROJECTNAME} ${folder_source})
+ADD_EXECUTABLE(${PROJECTNAME}_icubdyn ${folder_source})
 
-TARGET_LINK_LIBRARIES(${PROJECTNAME} ${YARP_LIBRARIES}
+TARGET_LINK_LIBRARIES(${PROJECTNAME}_icubdyn ${YARP_LIBRARIES}
                                      ${iDynTree_LIBRARIES}
-#                                      idyntree-core
-#                                      idyntree-regressors
-#                                      idyntree-model-io 
-#                                      ${orocos_kdl_LIBRARIES}
                                      )                                     
 
 

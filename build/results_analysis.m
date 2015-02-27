@@ -2,14 +2,22 @@ clear all;
 close all;
 
 %% Load ground truth
-datasetFileName = 'part1-left.csv';
+% datasetFileName = 'part1-left.csv';
+% datasetFileName = 'part1.csv';
+datasetFileName = 'part2.csv';
 dataset = importdata(datasetFileName, ',', 3);
+% datasetFileName = 'icubdyn.dat';
+% dataset = dlmread(datasetFileName , ',');
 
 skip = 0;
-f_gnd = dataset.data(skip+1:end,13:15);
-t_gnd = dataset.data(skip+1:end,16:18);
+n =  size(dataset.data,1);
+% n =  10000;
+f_gnd = dataset.data(skip+1:n,13:15);
+t_gnd = dataset.data(skip+1:n,16:18);
+% f_gnd = dataset(skip+1:n,13:15);
+% t_gnd = dataset(skip+1:n,16:18);
 
-n =  size(f_gnd,1);
+
 
 %% Load predictions
 predFileName = 'results.csv';

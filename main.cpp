@@ -357,11 +357,20 @@ int main(int argc, char *argv[])
                    " the model of the iCub (default: model.urdf).  \n";
         return 0;
     }
+        
+    int c;
 
+    string urdf_file_name;
+    if(  opt.check("urdf") ) {
+        urdf_file_name = opt.find("urdf").asString().c_str();
+        cout << endl<< endl<< "urdf_file_name: " << urdf_file_name << endl<< endl;
+//         cin>>c;
+    }
+//     cin>>c;
 //     std::string urdf_filename = rf.findFile("urdf");
-    std::string urdf_filename = rf.findFile("model.urdf");
+//     std::string urdf_filename = rf.findFile("model.urdf");
 
-    yInfo() << "icubArmRegressor: Trying to open " << urdf_filename
+    yInfo() << "icubArmRegressor: Trying to open " << urdf_file_name
                                                   << " as iCub model";
                                                   
                                                   
@@ -372,7 +381,7 @@ int main(int argc, char *argv[])
     // Get KDL tree from the specified URDF file
     KDL::Tree icub_kdl_tree;
         
-    if (!kdl_format_io::treeFromUrdfFile(urdf_filename,icub_kdl_tree))
+    if (!kdl_format_io::treeFromUrdfFile(urdf_file_name,icub_kdl_tree))
     {
         std::cerr << "Could not generate robot model and extract kdl tree" << std::endl;
         return EXIT_FAILURE;
@@ -486,12 +495,7 @@ int main(int argc, char *argv[])
       * as inertial parameters (masses, centers of mass, inertia tensor elements) or
       * other related parameters (for example force/torque sensor offset).
       */
-//     KDL::CoDyCo::Regressors::DynamicRegressorGenerator ft_regressor_generator(icub_kdl_tree,
-//                                                                               sensors_tree,
-//                                                                               root_link_name,
-//                                                                               consider_ft_offset,
-//                                                                               fake_names,
-//                                                                               verbose);
+
     KDL::CoDyCo::Regressors::DynamicRegressorGenerator ft_regressor_generator(icub_kdl_undirected_tree,
                                                                               sensors_tree,
                                                                               root_link_name,
@@ -499,8 +503,8 @@ int main(int argc, char *argv[])
                                                                               fake_names,
                                                                               verbose);
     // Change the base link to left or right arm
-    ft_regressor_generator.changeDynamicBase(subtree_dynamic_base);
-    ft_regressor_generator.changeKinematicBase(root_link_name);
+//     ft_regressor_generator.changeDynamicBase(subtree_dynamic_base);
+//     ft_regressor_generator.changeKinematicBase(root_link_name);
 
     /////// Define the subtree we are interested into
     
@@ -538,7 +542,8 @@ int main(int argc, char *argv[])
     yarp::sig::Vector ft_sample_raw(6,0.0), ft_sample_filtered(6,0.0);
     
     //Defining gravity vector
-    const double g = 9.806;
+//     const double g = 9.806;
+    const double g = -9.806;
     KDL::Twist gravity(KDL::Vector(0.0,0.0,g) , KDL::Vector(0.0,0.0,0.0));
     
     cout << "ft_regressor_generator.getNrOfOutputs() [regressor rows] = " << ft_regressor_generator.getNrOfOutputs() << endl;
